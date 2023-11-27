@@ -10,6 +10,7 @@ import {EnforcedTxGateway} from "../L1/gateways/EnforcedTxGateway.sol";
 import {L1MessageQueueWithGasPriceOracle} from "../L1/rollup/L1MessageQueueWithGasPriceOracle.sol";
 import {L2GasPriceOracle} from "../L1/rollup/L2GasPriceOracle.sol";
 import {ScrollChain, IScrollChain} from "../L1/rollup/ScrollChain.sol";
+import {L1ViewOracle} from "../L1/L1ViewOracle.sol";
 import {Whitelist} from "../L2/predeploys/Whitelist.sol";
 import {L1ScrollMessenger} from "../L1/L1ScrollMessenger.sol";
 import {L2ScrollMessenger} from "../L2/L2ScrollMessenger.sol";
@@ -58,6 +59,7 @@ abstract contract L1GatewayTestBase is ScrollTestBase {
 
     uint32 internal constant defaultGasLimit = 1000000;
 
+    L1ViewOracle internal l1ViewOracle;
     L1ScrollMessenger internal l1Messenger;
     L1MessageQueueWithGasPriceOracle internal messageQueue;
     L2GasPriceOracle internal gasOracle;
@@ -85,6 +87,7 @@ abstract contract L1GatewayTestBase is ScrollTestBase {
         feeVault = address(uint160(address(this)) - 1);
 
         // deploy proxy and contracts in L1
+        l1ViewOracle = new L1ViewOracle();
         l1Messenger = L1ScrollMessenger(payable(_deployProxy(address(0))));
         messageQueue = L1MessageQueueWithGasPriceOracle(_deployProxy(address(0)));
         rollup = ScrollChain(_deployProxy(address(0)));
@@ -126,7 +129,7 @@ abstract contract L1GatewayTestBase is ScrollTestBase {
             ITransparentUpgradeableProxy(address(rollup)),
             address(new ScrollChain(1233, address(messageQueue), address(verifier)))
         );
-        rollup.initialize(address(messageQueue), address(0), 44);
+        rollup.initialize(address(messageQueue), address(0), 44, address(l1ViewOracle));
 
         // Setup whitelist
         address[] memory _accounts = new address[](1);
@@ -155,7 +158,7 @@ abstract contract L1GatewayTestBase is ScrollTestBase {
         chunk0[0] = bytes1(uint8(1)); // one block in this chunk
         chunks[0] = chunk0;
         hevm.startPrank(address(0));
-        rollup.commitBatch(0, batchHeader0, chunks, new bytes(0));
+        rollup.commitBatch(0, batchHeader0, chunks, new bytes(0), 0);
         hevm.stopPrank();
 
         bytes memory batchHeader1 = new bytes(89);
