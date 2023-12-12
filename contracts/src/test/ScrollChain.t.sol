@@ -65,7 +65,7 @@ contract ScrollChainTest is DSTestPlus {
     }
 
     function testCommitBatch() public {
-        bytes memory batchHeader0 = new bytes(89);
+        bytes memory batchHeader0 = new bytes(129);
 
         // import 10 L1 messages
         for (uint256 i = 0; i < 10; i++) {
@@ -99,13 +99,13 @@ contract ScrollChainTest is DSTestPlus {
         // batch header length too small, revert
         hevm.startPrank(address(0));
         hevm.expectRevert("batch header length too small");
-        rollup.commitBatch(0, new bytes(88), new bytes[](1), new bytes(0), 0);
+        rollup.commitBatch(0, new bytes(128), new bytes[](1), new bytes(0), 0);
         hevm.stopPrank();
 
         // wrong bitmap length, revert
         hevm.startPrank(address(0));
         hevm.expectRevert("wrong bitmap length");
-        rollup.commitBatch(0, new bytes(90), new bytes[](1), new bytes(0), 0);
+        rollup.commitBatch(0, new bytes(130), new bytes[](1), new bytes(0), 0);
         hevm.stopPrank();
 
         // incorrect parent batch hash, revert
@@ -141,7 +141,7 @@ contract ScrollChainTest is DSTestPlus {
         hevm.stopPrank();
 
         // cannot skip last L1 message, revert
-        chunk0 = new bytes(1 + 60);
+        chunk0 = new bytes(1 + 108);
         bytes memory bitmap = new bytes(32);
         chunk0[0] = bytes1(uint8(1)); // one block in this chunk
         chunk0[58] = bytes1(uint8(1)); // numTransactions = 1
@@ -154,7 +154,7 @@ contract ScrollChainTest is DSTestPlus {
         hevm.stopPrank();
 
         // num txs less than num L1 msgs, revert
-        chunk0 = new bytes(1 + 60);
+        chunk0 = new bytes(1 + 108);
         bitmap = new bytes(32);
         chunk0[0] = bytes1(uint8(1)); // one block in this chunk
         chunk0[58] = bytes1(uint8(1)); // numTransactions = 1
@@ -167,7 +167,7 @@ contract ScrollChainTest is DSTestPlus {
         hevm.stopPrank();
 
         // incomplete l2 transaction data, revert
-        chunk0 = new bytes(1 + 60 + 1);
+        chunk0 = new bytes(1 + 108 + 1);
         chunk0[0] = bytes1(uint8(1)); // one block in this chunk
         chunks[0] = chunk0;
         hevm.startPrank(address(0));
@@ -176,7 +176,7 @@ contract ScrollChainTest is DSTestPlus {
         hevm.stopPrank();
 
         // commit batch with one chunk, no tx, correctly
-        chunk0 = new bytes(1 + 60);
+        chunk0 = new bytes(1 + 108);
         chunk0[0] = bytes1(uint8(1)); // one block in this chunk
         chunks[0] = chunk0;
         hevm.startPrank(address(0));
@@ -551,12 +551,12 @@ contract ScrollChainTest is DSTestPlus {
         // caller not owner, revert
         hevm.startPrank(address(1));
         hevm.expectRevert("Ownable: caller is not the owner");
-        rollup.revertBatch(new bytes(89), 1);
+        rollup.revertBatch(new bytes(129), 1);
         hevm.stopPrank();
 
         rollup.addSequencer(address(0));
 
-        bytes memory batchHeader0 = new bytes(89);
+        bytes memory batchHeader0 = new bytes(129);
 
         // import genesis batch
         assembly {
@@ -569,14 +569,14 @@ contract ScrollChainTest is DSTestPlus {
         bytes memory chunk0;
 
         // commit one batch
-        chunk0 = new bytes(1 + 60);
+        chunk0 = new bytes(1 + 108);
         chunk0[0] = bytes1(uint8(1)); // one block in this chunk
         chunks[0] = chunk0;
         hevm.startPrank(address(0));
         rollup.commitBatch(0, batchHeader0, chunks, new bytes(0), 0);
         hevm.stopPrank();
 
-        bytes memory batchHeader1 = new bytes(89);
+        bytes memory batchHeader1 = new bytes(129);
         assembly {
             mstore(add(batchHeader1, 0x20), 0) // version
             mstore(add(batchHeader1, add(0x20, 1)), shl(192, 1)) // batchIndex
