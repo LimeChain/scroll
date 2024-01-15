@@ -10,7 +10,7 @@ use prover::{
     aggregator::{Prover, Verifier},
     consts::AGG_VK_FILENAME,
     utils::{chunk_trace_to_witness_block, init_env_and_log},
-    BatchProof, BlockTrace, ChunkHash, ChunkProof,
+    BatchProof, ChunkHash, ChunkProof, ChunkTrace,
 };
 use std::{cell::OnceCell, env, ptr::null};
 
