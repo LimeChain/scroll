@@ -13,6 +13,7 @@ import {ScrollChain, IScrollChain} from "../L1/rollup/ScrollChain.sol";
 import {EmptyContract} from "../misc/EmptyContract.sol";
 
 import {MockRollupVerifier} from "./mocks/MockRollupVerifier.sol";
+import {MockL1ViewOracle} from "./mocks/MockL1ViewOracle.sol";
 
 // solhint-disable no-inline-assembly
 
@@ -29,13 +30,13 @@ contract ScrollChainTest is DSTestPlus {
     ProxyAdmin internal admin;
     EmptyContract private placeholder;
 
-    L1ViewOracle private l1ViewOracle;
+    MockL1ViewOracle private l1ViewOracle;
     ScrollChain private rollup;
     L1MessageQueue internal messageQueue;
     MockRollupVerifier internal verifier;
 
     function setUp() public {
-        l1ViewOracle = new L1ViewOracle();
+        l1ViewOracle = new MockL1ViewOracle();
         placeholder = new EmptyContract();
         admin = new ProxyAdmin();
         messageQueue = L1MessageQueue(_deployProxy(address(0)));
